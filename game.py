@@ -7,7 +7,6 @@ from exceptions import InvalidAction
 
 pygame.init()
 font = pygame.font.Font('arial.ttf', 25)
-#font = pygame.font.SysFont('arial', 25)
 
 class Direction(Enum):
     RIGHT = 1
@@ -66,7 +65,7 @@ class SnakeGameAI:
         x2, y2 = self.food.x, self.food.y
         return (x1-x2)**2 + (y1-y2)**2
         
-    def play_step(self, action):
+    def play_step(self, action : int) -> tuple[int, int, int]:
         self.frame_iteration += 1
 
         # 1. collect user input
@@ -89,9 +88,9 @@ class SnakeGameAI:
         
         # 3. check if game over
         reward = 0
-        game_over = False
+        game_over = 0
         if self.is_collision() or self.frame_iteration > 60*len(self.snake) or bad:
-            game_over = True
+            game_over = 1
             self.previousheads.clear()
             reward = -10
             return reward, game_over, self.score
@@ -137,18 +136,16 @@ class SnakeGameAI:
         self.display.blit(text, [0, 0])
         pygame.display.flip()
         
-    def _move(self, action):
-        # [straight, right, left]
-
+    def _move(self, action : int) -> None:
         clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
 
         idx = clock_wise.index(self.direction)
 
-        if np.array_equal(action, [1, 0, 0]):
+        if action == 0: # straight
             self.direction = clock_wise[idx]
-        elif np.array_equal(action, [0, 1, 0]):
+        elif action == 1: # right
             self.direction = clock_wise[(idx+1)%4]
-        elif np.array_equal(action, [0, 0, 1]):
+        elif action == 2: # left
             self.direction = clock_wise[(idx-1)%4]
         else:
             raise InvalidAction("Action is not in a valid form")
